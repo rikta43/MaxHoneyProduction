@@ -1,0 +1,17 @@
+hadoop@hadoop-VirtualBox:~$ hdfs namenode -format 
+hadoop@hadoop-VirtualBox:~$ start-dfs.sh 
+hadoop@hadoop-VirtualBox:~$ start-yarn.sh 
+hadoop@hadoop-VirtualBox:~$ hdfs dfs -put Downloads/HoneyProd.txt / 
+hadoop@hadoop-VirtualBox:~$ hdfs dfs -put Downloads/HoneyPollution.txt / 
+hadoop@hadoop-VirtualBox:~$ pig -x mapreduce 
+//LOAD statement used to read data from the file system. 
+HoneyProd = LOAD '/HoneyProd.txt' USING PigStorage() AS (state: chararray, numcol:int, yieldpercol:int, totalprod:int, stocks:int, priceperlb:int, prodvalue:int, year:int); 
+AirPollution = LOAD '/HoneyPollution.txt' USING PigStorage() AS (parameter_name: chararray, sample_duration:chararray, units_of_measure:chararray, arithmetic_mean: chararray, state_name: chararray, Year:int); 
+Result = JOIN AirPollution BY (state_name, Year), HoneyProd BY (state,year);
+//DUMP statement used to view results.
+DUMP Result;
+// The STORE will write the results to an output folder.
+STORE Result INTO ‘output’;
+Then quit Pig Mapreduce mode and run 
+hadoop@hadoop-VirtualBox:~$ hdfs dfs -get output output 
+which will copy the output files from the distributed filesystem to the local filesystem as txt file.
